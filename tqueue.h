@@ -9,7 +9,7 @@ class tqueue {
     void lock_mutex();
     void unlock_mutex();
     public:
-        queue();
+        tqueue();
         T& front();
         const T& front() const;
         T& back();
@@ -17,10 +17,10 @@ class tqueue {
         bool empty() const;
         size_t size() const;
         void push( T&& value );
-        void push_range( R&& rg );
-        decltype(auto) emplace( Args&&... args );
+        void push_range( T&& rg );
+        decltype(auto) emplace( T&& t );
         void pop();
-        void swap( tqueue& other )
+        void swap( tqueue& other );
         tqueue& operator=( const tqueue& other );
     
 
