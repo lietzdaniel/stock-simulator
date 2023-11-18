@@ -1,13 +1,15 @@
 #include <gtest/gtest.h>
 #include "tqueue.h"
 
-TEST(TQueueTest, Constructor) {
+TEST(TQueueTest, Constructor)
+{
     EXPECT_NO_THROW(tqueue<std::string> t_queue;);
     EXPECT_NO_THROW(tqueue<int> t_queue;);
     EXPECT_NO_THROW(tqueue<char> t_queue;);
 }
 
-TEST(TQueueTest, Empty) {
+TEST(TQueueTest, Empty)
+{
     tqueue<std::string> t_queue;
     EXPECT_EQ(t_queue.empty(), true);
     t_queue.push("Hello");
@@ -20,7 +22,8 @@ TEST(TQueueTest, Empty) {
     EXPECT_EQ(t_queue.empty(), true);
 }
 
-TEST(TQueueTest, Size) {
+TEST(TQueueTest, Size)
+{
     tqueue<std::string> t_queue;
     EXPECT_EQ(t_queue.size(), 0);
     t_queue.push("Hello");
@@ -37,8 +40,8 @@ TEST(TQueueTest, Size) {
     EXPECT_EQ(t_queue.size(), 0);
 }
 
-
-TEST(TQueueTest, PushPop) {
+TEST(TQueueTest, PushPop)
+{
     tqueue<std::string> t_queue;
     t_queue.push("Hello");
     EXPECT_EQ(t_queue.front(), "Hello");
@@ -64,8 +67,8 @@ TEST(TQueueTest, PushPop) {
     EXPECT_EQ(t_queue.size(), 0);
 }
 
-
-TEST(TQueueTest, front) {
+TEST(TQueueTest, front)
+{
     tqueue<std::string> t_queue;
     t_queue.push("Hello");
     EXPECT_EQ(t_queue.front(), "Hello");
@@ -80,7 +83,8 @@ TEST(TQueueTest, front) {
     t_queue.pop();
 }
 
-TEST(TQueueTest, back) {
+TEST(TQueueTest, back)
+{
     tqueue<std::string> t_queue;
     t_queue.push("Hello");
     EXPECT_EQ(t_queue.back(), "Hello");
@@ -95,7 +99,8 @@ TEST(TQueueTest, back) {
     t_queue.pop();
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
