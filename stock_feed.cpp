@@ -8,7 +8,7 @@ stock_feed::stock_feed(std::string &ticker_name, int port) : ticker_name(ticker_
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = INADDR_ANY;
     server_address.sin_port = htons(port);
-    bind( this->server_socket, (struct sockaddr *)&server_address, sizeof(server_address));
+    bind(this->server_socket, (struct sockaddr *)&server_address, sizeof(server_address));
 }
 
 void stock_feed::start_data_simulation()
@@ -20,9 +20,10 @@ void stock_feed::start_data_simulation()
     std::lognormal_distribution<double> time_distribution(0.0, 1.0);
 
     // Create an initial Stock Value between 100 and 200
-    this->cur_value = rand()%100+100;
+    this->cur_value = rand() % 100 + 100;
 
-    while (true){
+    while (true)
+    {
         // Generate an update interval and amount according to a logartihmic normal distribution
         double update_interval = time_distribution(gen);
         double update_amount = distribution(gen);
@@ -32,19 +33,22 @@ void stock_feed::start_data_simulation()
 
         std::this_thread::sleep_for(std::chrono::milliseconds((int)(update_interval * 1000)));
         std::string stock_info = "Stock update: " + ticker_name + " price: " + std::to_string(new_amount) + "\n";
-        
-        for (auto it = this->socket_pool.begin(); it != this->socket_pool.end();){
+
+        for (auto it = this->socket_pool.begin(); it != this->socket_pool.end();)
+        {
             int socket = *it;
             int res = send(socket, stock_info.c_str(), stock_info.size(), 0);
-            if(res == -1){
+            if (res == -1)
+            {
                 // If send() fails, close the socket and remove it out of the socket_pool
                 close(socket);
                 it = this->socket_pool.erase(it);
-            } else {
+            }
+            else
+            {
                 ++it;
             }
         }
-       
     }
 }
 void stock_feed::accept_connections()
@@ -53,10 +57,10 @@ void stock_feed::accept_connections()
     listen(this->server_socket, 10);
 
     // Start Data Simulation Thread
-    std::thread data_simulation(&stock_feed::start_data_simulation,this); 
+    std::thread data_simulation(&stock_feed::start_data_simulation, this);
     while (true)
     {
-        // Accept now Connections and add them in the Socket Pool 
+        // Accept now Connections and add them in the Socket Pool
         sockaddr_in client_address;
         socklen_t client_address_length = sizeof(client_address);
         int client_socket = accept(this->server_socket, (struct sockaddr *)&client_address, &client_address_length);
@@ -65,10 +69,10 @@ void stock_feed::accept_connections()
     }
 }
 
-int main() {
+int main()
+{
     // Ignore SIGPIPE in order for send() not to crash the Program when a Socket is closed on the Client side.
     signal(SIGPIPE, SIG_IGN);
-
 
     std::string ticker_name = "BMW";
     int port = 12345;

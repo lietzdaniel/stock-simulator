@@ -18,7 +18,7 @@ class stock_feed
 {
     double cur_value;
     std::string ticker_name;
-    
+
 public:
     std::vector<int> socket_pool;
     int server_socket;
