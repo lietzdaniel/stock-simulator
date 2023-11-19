@@ -14,4 +14,4 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 
-add_executable(Stock_Feed stock_feed.h stock_feed.cpp)
+add_executable(stock_feed stock_feed.h stock_feed.cpp)

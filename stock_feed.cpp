@@ -1,14 +1,4 @@
 #include "stock_feed.h"
-#include <iostream>
-#include <string>
-#include <cstring>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <random>
-#include <chrono>
-#include <thread>
-#include <arpa/inet.h>
-#include <csignal>
 
 stock_feed::stock_feed(std::string &ticker_name, int port) : ticker_name(ticker_name)
 {
@@ -41,11 +31,11 @@ void stock_feed::start_data_simulation()
         this->cur_value = new_amount;
 
         std::this_thread::sleep_for(std::chrono::milliseconds((int)(update_interval * 1000)));
-        std::string stockInfo = "Stock update: " + ticker_name + " price: " + std::to_string(new_amount) + "\n";
+        std::string stock_info = "Stock update: " + ticker_name + " price: " + std::to_string(new_amount) + "\n";
         
         for (auto it = this->socket_pool.begin(); it != this->socket_pool.end();){
             int socket = *it;
-            int res = send(socket, stockInfo.c_str(), stockInfo.size(), 0);
+            int res = send(socket, stock_info.c_str(), stock_info.size(), 0);
             if(res == -1){
                 // If send() fails, close the socket and remove it out of the socket_pool
                 close(socket);
@@ -67,10 +57,10 @@ void stock_feed::accept_connections()
     while (true)
     {
         // Accept now Connections and add them in the Socket Pool 
-        sockaddr_in clientAddress;
-        socklen_t clientAdressLength = sizeof(clientAddress);
-        int client_socket = accept(this->server_socket, (struct sockaddr *)&clientAddress, &clientAdressLength);
-        std::cout << "Connection accepted from " << inet_ntoa(clientAddress.sin_addr) << std::endl;
+        sockaddr_in client_address;
+        socklen_t client_address_length = sizeof(client_address);
+        int client_socket = accept(this->server_socket, (struct sockaddr *)&client_address, &client_address_length);
+        std::cout << "Connection accepted from " << inet_ntoa(client_address.sin_addr) << std::endl;
         this->socket_pool.push_back(client_socket);
     }
 }
@@ -82,6 +72,7 @@ int main() {
 
     std::string ticker_name = "BMW";
     int port = 12345;
+    std::cout << "To connect to the Stock_feed server, run ||| nc localhost " << port << " ||| on another Terminal Window." << std::endl;
 
     stock_feed server(ticker_name, port);
     server.accept_connections();

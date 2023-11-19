@@ -1,5 +1,18 @@
+#ifndef STOCK_FEED_H
+#define STOCK_FEED_H
+
 #include <string>
 #include <vector>
+#include "iostream"
+#include "string"
+#include "cstring"
+#include "unistd.h"
+#include "netinet/in.h"
+#include "random"
+#include "chrono"
+#include "thread"
+#include "arpa/inet.h"
+#include "csignal"
 
 class stock_feed
 {
@@ -14,3 +27,5 @@ public:
     void accept_connections();
     void start_data_simulation();
 };
+
+#endif
