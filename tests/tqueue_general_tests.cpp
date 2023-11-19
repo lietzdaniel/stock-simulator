@@ -1,14 +1,14 @@
 #include "gtest/gtest.h"
 #include "tqueue.h"
 
-TEST(TQueueTest, Constructor)
+TEST(TQueueTest, ConstructorNoException)
 {
     EXPECT_NO_THROW(tqueue<std::string> t_queue;);
     EXPECT_NO_THROW(tqueue<int> t_queue;);
     EXPECT_NO_THROW(tqueue<char> t_queue;);
 }
 
-TEST(TQueueTest, Empty)
+TEST(TQueueTest, EmptyValueAfterPushPop)
 {
     tqueue<std::string> t_queue;
     EXPECT_EQ(t_queue.empty(), true);
@@ -22,7 +22,7 @@ TEST(TQueueTest, Empty)
     EXPECT_EQ(t_queue.empty(), true);
 }
 
-TEST(TQueueTest, Size)
+TEST(TQueueTest, SizeValueAfterPushPop)
 {
     tqueue<std::string> t_queue;
     EXPECT_EQ(t_queue.size(), 0);
@@ -40,7 +40,7 @@ TEST(TQueueTest, Size)
     EXPECT_EQ(t_queue.size(), 0);
 }
 
-TEST(TQueueTest, PushPop)
+TEST(TQueueTest, QueueStateAfterPushPop)
 {
     tqueue<std::string> t_queue;
     t_queue.push("Hello");
@@ -67,7 +67,7 @@ TEST(TQueueTest, PushPop)
     EXPECT_EQ(t_queue.size(), 0);
 }
 
-TEST(TQueueTest, front)
+TEST(TQueueTest, FrontValueAfterPushPop)
 {
     tqueue<std::string> t_queue;
     t_queue.push("Hello");
@@ -83,7 +83,7 @@ TEST(TQueueTest, front)
     t_queue.pop();
 }
 
-TEST(TQueueTest, back)
+TEST(TQueueTest, BackValueAfterPushPop)
 {
     tqueue<std::string> t_queue;
     t_queue.push("Hello");
