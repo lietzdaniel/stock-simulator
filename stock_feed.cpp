@@ -1,5 +1,7 @@
 #include "stock_feed.h"
 
+stock_message::stock_message(double value, double delta, std::string &timestamp) : value(value), delta(delta), timestamp(timestamp) {}
+
 stock_feed::stock_feed(std::string &ticker_name, int port) : ticker_name(ticker_name)
 {
     // Initialize Socket to localhost and given port
@@ -11,6 +13,12 @@ stock_feed::stock_feed(std::string &ticker_name, int port) : ticker_name(ticker_
     bind(this->server_socket, (struct sockaddr *)&server_address, sizeof(server_address));
 }
 
+std::string stock_message::to_string()
+{
+    std::stringstream message_stream;
+    message_stream << this->timestamp << ":  New Value: " << this->value << " Delta: " << this->delta << "\n";
+    return message_stream.str();
+}
 void stock_feed::start_data_simulation()
 {
     // Set Variables for Randomization
@@ -31,26 +39,44 @@ void stock_feed::start_data_simulation()
         double delta = new_amount - this->cur_value;
         this->cur_value = new_amount;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds((int)(update_interval * 1000)));
-        std::string stock_info = "Stock update: " + ticker_name + " price: " + std::to_string(new_amount) + "\n";
+        auto time = std::chrono::system_clock::now();
+        std::time_t end_time = std::chrono::system_clock::to_time_t(time);
+        std::string timestamp = std::ctime(&end_time);
+        stock_message message{new_amount, delta, timestamp};
+        std::string message_str = message.to_string();
 
-        for (auto it = this->socket_pool.begin(); it != this->socket_pool.end();)
+        std::vector<std::thread> thread_pool;
+        for (auto socket_id : this->socket_pool)
         {
-            int socket = *it;
-            int res = send(socket, stock_info.c_str(), stock_info.size(), 0);
-            if (res == -1)
-            {
-                // If send() fails, close the socket and remove it out of the socket_pool
-                close(socket);
-                it = this->socket_pool.erase(it);
-            }
-            else
-            {
-                ++it;
-            }
+            std::thread t = std::thread(&stock_feed::send_message, this, socket_id, std::ref(message_str));
+
+            thread_pool.push_back(std::move(t));
         }
+        for (auto &thread : thread_pool)
+        {
+            thread.join();
+        }
+        for (int invalid_socket_id : invalid_sockets)
+        {
+            socket_pool.erase(std::remove(socket_pool.begin(), socket_pool.end(), invalid_socket_id), socket_pool.end());
+        }
+        invalid_sockets = std::vector<int>();
+        std::this_thread::sleep_for(std::chrono::milliseconds((int)(update_interval * 1000)));
     }
 }
+
+void stock_feed::send_message(int socket_id, std::string &message)
+{
+
+    int res = send(socket_id, message.c_str(), message.size(), 0);
+    if (res == -1)
+    {
+        // If send() fails, close the socket and remove it out of the socket_pool
+        close(socket_id);
+        this->invalid_sockets.push_back(socket_id);
+    }
+}
+
 void stock_feed::accept_connections()
 {
     // Listen for maximum 10 Connections
@@ -65,7 +91,9 @@ void stock_feed::accept_connections()
         socklen_t client_address_length = sizeof(client_address);
         int client_socket = accept(this->server_socket, (struct sockaddr *)&client_address, &client_address_length);
         std::cout << "Connection accepted from " << inet_ntoa(client_address.sin_addr) << std::endl;
+        this->pool_mutex.lock();
         this->socket_pool.push_back(client_socket);
+        this->pool_mutex.unlock();
     }
 }
 
